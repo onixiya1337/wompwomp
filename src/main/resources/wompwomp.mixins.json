@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "dev.yuro.wompwomp.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "refmap": "wompwomp.refmap.json",
+  "mixins": [
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
