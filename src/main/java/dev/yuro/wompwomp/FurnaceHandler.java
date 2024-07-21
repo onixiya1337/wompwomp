@@ -11,48 +11,43 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerContainerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
 
-@Mod.EventBusSubscriber(modid = Main.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class FurnaceHandler {
 
-    private static int delay = 4;
+    private int delay = 4;
 
     @SubscribeEvent
-    public static void onClientTick(TickEvent.ClientTickEvent event) {
-        Minecraft minecraft = Minecraft.getInstance();
-        Player player = minecraft.player;
+    public void onClientTick(TickEvent.ClientTickEvent event) {
         if (event.phase == TickEvent.Phase.END) {
-            if (player != null) {
+            if (Minecraft.getInstance().player != null) {
                 if (delay > 0) {
                     delay--;
                     return;
                 }
                 delay = Config.delay;
-                AbstractContainerMenu container = player.containerMenu;
+                AbstractContainerMenu container = Minecraft.getInstance().player.containerMenu;
                 if (container instanceof FurnaceMenu furnaceMenu) {
-                    handleFurnace(furnaceMenu, player);
+                    handleFurnace(furnaceMenu, Minecraft.getInstance().player);
                 }
             }
         }
     }
 
     @SubscribeEvent
-    public static void onContainerOpen(PlayerContainerEvent.Open event) {
+    public void onContainerOpen(PlayerContainerEvent.Open event) {
         AbstractContainerMenu container = event.getContainer();
         if (container instanceof FurnaceMenu) {
             delay = Config.delay;
         }
     }
 
-    private static void handleFurnace(FurnaceMenu furnaceMenu, Player player) {
-        Minecraft minecraft = Minecraft.getInstance();
+    private void handleFurnace(FurnaceMenu furnaceMenu, Player player) {
         if (furnaceMenu.getSlot(0).getItem().isEmpty()) {
             int smeltSlot = findItemInInventory(furnaceMenu, stringToItem(Config.furnanceSmeltItem));
             if (smeltSlot != -1) {
-                assert minecraft.gameMode != null;
-                minecraft.gameMode.handleInventoryMouseClick(furnaceMenu.containerId, smeltSlot, 0, ClickType.QUICK_MOVE, player);
+                assert Minecraft.getInstance().gameMode != null;
+                Minecraft.getInstance().gameMode.handleInventoryMouseClick(furnaceMenu.containerId, smeltSlot, 0, ClickType.QUICK_MOVE, player);
                 Main.LOGGER.info("Moved {} to the input slot", Config.furnanceSmeltItem);
                 return;
             }
@@ -60,16 +55,16 @@ public class FurnaceHandler {
         if (furnaceMenu.getSlot(1).getItem().isEmpty()) {
             int fuelSlot = findItemInInventory(furnaceMenu, stringToItem(Config.furnanceFuelItem));
             if (fuelSlot != -1) {
-                assert minecraft.gameMode != null;
-                minecraft.gameMode.handleInventoryMouseClick(furnaceMenu.containerId, fuelSlot, 1, ClickType.QUICK_MOVE, player);
+                assert Minecraft.getInstance().gameMode != null;
+                Minecraft.getInstance().gameMode.handleInventoryMouseClick(furnaceMenu.containerId, fuelSlot, 1, ClickType.QUICK_MOVE, player);
                 Main.LOGGER.info("Moved {} to the fuel slot", Config.furnanceFuelItem);
                 return;
             }
         }
         ItemStack outputStack = furnaceMenu.getSlot(2).getItem();
         if (!outputStack.isEmpty()) {
-            assert minecraft.gameMode != null;
-            minecraft.gameMode.handleInventoryMouseClick(furnaceMenu.containerId, 2, 0, ClickType.QUICK_MOVE, player);
+            assert Minecraft.getInstance().gameMode != null;
+            Minecraft.getInstance().gameMode.handleInventoryMouseClick(furnaceMenu.containerId, 2, 0, ClickType.QUICK_MOVE, player);
             Main.LOGGER.info("Moved smelted item to inventory");
             return;
         }
@@ -77,7 +72,7 @@ public class FurnaceHandler {
             player.closeContainer();
     }
 
-    private static int findItemInInventory(FurnaceMenu furnaceMenu, Item item) {
+    private int findItemInInventory(FurnaceMenu furnaceMenu, Item item) {
         for (int i = 3; i < 39; i++) {
             if (furnaceMenu.getSlot(i).getItem().getItem() == item) {
                 Main.LOGGER.info("Item {} found in inventory at slot {}", item, i);
@@ -88,7 +83,7 @@ public class FurnaceHandler {
         return -1;
     }
 
-    private static Item stringToItem(String itemString) {
+    private Item stringToItem(String itemString) {
         return ForgeRegistries.ITEMS.getValue(ResourceLocation.parse(itemString));
     }
 }

@@ -8,31 +8,34 @@ import net.minecraftforge.fml.event.config.ModConfigEvent;
 @Mod.EventBusSubscriber(modid = Main.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class Config {
     public static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
-    static final ForgeConfigSpec SPEC = BUILDER.build();
-    public static ForgeConfigSpec.IntValue DELAY = BUILDER
+
+    public static final ForgeConfigSpec.IntValue DELAY = BUILDER
             .comment("Delay between furnace operations (in ticks)")
             .defineInRange("delay", 4, 1, 20);
-    public static ForgeConfigSpec.BooleanValue CLOSE_INVENTORY = BUILDER
+    public static final ForgeConfigSpec.BooleanValue CLOSE_INVENTORY = BUILDER
             .comment("Close inventory after operation")
             .define("closeInventory", true);
-    public static ForgeConfigSpec.ConfigValue<String> FUEL_ITEM = BUILDER
+    public static final ForgeConfigSpec.ConfigValue<String> FUEL_ITEM = BUILDER
             .comment("Fuel item to use (e.g., minecraft:coal)")
             .define("fuelItem", "minecraft:coal");
-    public static ForgeConfigSpec.ConfigValue<String> SMELT_ITEM = BUILDER
+    public static final ForgeConfigSpec.ConfigValue<String> SMELT_ITEM = BUILDER
             .comment("Item to smelt (e.g., minecraft:raw_copper)")
             .define("smeltItem", "minecraft:raw_copper");
-    public static ForgeConfigSpec.ConfigValue<String> ALCHEMY_INGREDIENT_ITEM = BUILDER
+    public static final ForgeConfigSpec.ConfigValue<String> ALCHEMY_INGREDIENT_ITEM = BUILDER
             .comment("Item to use as ingredient (e.g., minecraft:blaze_powder)")
             .define("alchemyFuelItem", "minecraft:blaze_powder");
-    public static ForgeConfigSpec.ConfigValue<String> ALCHEMY_FUEL_ITEM = BUILDER
+    public static final ForgeConfigSpec.ConfigValue<String> ALCHEMY_FUEL_ITEM = BUILDER
             .comment("Item to use as ingredient (e.g., minecraft:blaze_powder)")
             .define("alchemyIngredientItem", "minecraft:blaze_powder");
-    public static ForgeConfigSpec.ConfigValue<String> ALCHEMY_PREPARE_ITEM = BUILDER
+    public static final ForgeConfigSpec.ConfigValue<String> ALCHEMY_PREPARE_ITEM = BUILDER
             .comment("Item to use as ingredient (e.g., minecraft:nether_wart)")
             .define("alchemyBrewedPotionItem", "minecraft:nether_wart");
-    public static ForgeConfigSpec.ConfigValue<String> ALCHEMY_POTION_EFFECT = BUILDER
+    public static final ForgeConfigSpec.ConfigValue<String> ALCHEMY_POTION_EFFECT = BUILDER
             .comment("Potion effect to apply (e.g., minecraft:strength)")
             .define("alchemyPotionEffect", "minecraft:strength");
+
+    static final ForgeConfigSpec SPEC = BUILDER.build();
+
     public static int delay;
     public static boolean closeInventory;
     public static String furnanceFuelItem;

@@ -11,14 +11,12 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
 
-@Mod.EventBusSubscriber(modid = Main.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class CommandHandler {
 
     @SubscribeEvent
-    public static void onRegisterCommands(RegisterCommandsEvent event) {
+    public void onRegisterCommands(RegisterCommandsEvent event) {
         CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();
 
         dispatcher.register(
@@ -49,14 +47,14 @@ public class CommandHandler {
         );
     }
 
-    private static int setDelay(CommandContext<CommandSourceStack> context, int value) {
+    private int setDelay(CommandContext<CommandSourceStack> context, int value) {
         Config.DELAY.set(value);
         Config.delay = value;
         context.getSource().sendSuccess(() -> Component.literal("Set delay to " + value), true);
         return 1;
     }
 
-    private static int setItem(CommandContext<CommandSourceStack> context, String configField, String itemName) {
+    private int setItem(CommandContext<CommandSourceStack> context, String configField, String itemName) {
         if (!itemExists(itemName)) {
             context.getSource().sendFailure(Component.literal("Item " + itemName + " does not exist!"));
             return 0;
@@ -92,7 +90,7 @@ public class CommandHandler {
         return 1;
     }
 
-    private static int setPotionEffect(CommandContext<CommandSourceStack> context, String effect) throws CommandSyntaxException {
+    private int setPotionEffect(CommandContext<CommandSourceStack> context, String effect) throws CommandSyntaxException {
         if (!potionEffectExists(effect)) {
             context.getSource().sendFailure(Component.literal("Potion effect " + effect + " does not exist!"));
             return 0;
@@ -104,12 +102,12 @@ public class CommandHandler {
         return 1;
     }
 
-    private static boolean itemExists(String itemName) {
+    private boolean itemExists(String itemName) {
         ResourceLocation resourceLocation = ResourceLocation.tryParse(itemName);
         return resourceLocation != null && ForgeRegistries.ITEMS.containsKey(resourceLocation);
     }
 
-    private static boolean potionEffectExists(String effectName) {
+    private boolean potionEffectExists(String effectName) {
         ResourceLocation resourceLocation = ResourceLocation.tryParse(effectName);
         return resourceLocation != null && ForgeRegistries.POTIONS.containsKey(resourceLocation);
     }
