@@ -21,6 +21,12 @@ public class CommandHandler {
 
         dispatcher.register(
                 Commands.literal("wompwomp")
+                        .then(Commands.literal("toggle")
+                                .then(Commands.literal("brewingStand")
+                                        .executes(this::toggleBrewingStand))
+                                .then(Commands.literal("furnace")
+                                        .executes(this::toggleFurnance))
+                        )
                         .then(Commands.literal("config")
                                 .then(Commands.literal("delay")
                                         .then(Commands.argument("value", IntegerArgumentType.integer(1, 20))
@@ -45,6 +51,18 @@ public class CommandHandler {
                                                 .executes(ctx -> setPotionEffect(ctx, StringArgumentType.getString(ctx, "effect")))))
                         )
         );
+    }
+
+    private int toggleBrewingStand(CommandContext<CommandSourceStack> context) {
+        context.getSource().sendSuccess(() -> Component.literal("§8[§5AutoBrewing§8] " + (Config.brewingStandEnabled ? "§cDisabled" : "§aEnabled")), true);
+        Config.BREWING_STAND_ENABLED.set(!Config.brewingStandEnabled);
+        return 1;
+    }
+
+    private int toggleFurnance(CommandContext<CommandSourceStack> context) {
+        context.getSource().sendSuccess(() -> Component.literal("§8[§5AutoFurnace§8] " + (Config.furnaceEnabled ? "§cDisabled" : "§aEnabled")), true);
+        Config.FURNACE_ENABLED.set(!Config.furnaceEnabled);
+        return 1;
     }
 
     private int setDelay(CommandContext<CommandSourceStack> context, int value) {

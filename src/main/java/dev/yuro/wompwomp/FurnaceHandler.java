@@ -21,6 +21,8 @@ public class FurnaceHandler {
     public void onClientTick(TickEvent.ClientTickEvent event) {
         if (event.phase == TickEvent.Phase.END) {
             if (Minecraft.getInstance().player != null) {
+                if (!Config.furnaceEnabled)
+                    return;
                 if (delay > 0) {
                     delay--;
                     return;

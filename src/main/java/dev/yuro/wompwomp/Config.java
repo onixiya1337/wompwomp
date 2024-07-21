@@ -33,6 +33,12 @@ public class Config {
     public static final ForgeConfigSpec.ConfigValue<String> ALCHEMY_POTION_EFFECT = BUILDER
             .comment("Potion effect to apply (e.g., minecraft:strength)")
             .define("alchemyPotionEffect", "minecraft:strength");
+    public static final ForgeConfigSpec.BooleanValue BREWING_STAND_ENABLED = BUILDER
+            .comment("Enable brewing stand automation")
+            .define("brewingStandEnabled", true);
+    public static final ForgeConfigSpec.BooleanValue FURNACE_ENABLED = BUILDER
+            .comment("Enable furnace automation")
+            .define("furnaceEnabled", true);
 
     static final ForgeConfigSpec SPEC = BUILDER.build();
 
@@ -44,6 +50,8 @@ public class Config {
     public static String alchemyIngredientItem;
     public static String alchemyPrepareItem;
     public static String alchemyPotionEffect;
+    public static boolean brewingStandEnabled;
+    public static boolean furnaceEnabled;
 
     @SubscribeEvent
     static void onLoad(final ModConfigEvent event) {
@@ -57,5 +65,8 @@ public class Config {
         alchemyIngredientItem = ALCHEMY_INGREDIENT_ITEM.get();
         alchemyPrepareItem = ALCHEMY_PREPARE_ITEM.get();
         alchemyPotionEffect = ALCHEMY_POTION_EFFECT.get();
+
+        brewingStandEnabled = BREWING_STAND_ENABLED.get();
+        furnaceEnabled = FURNACE_ENABLED.get();
     }
 }
