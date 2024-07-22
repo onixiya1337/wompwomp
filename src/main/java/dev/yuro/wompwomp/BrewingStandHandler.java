@@ -5,6 +5,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.BrewingStandMenu;
@@ -21,6 +22,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class BrewingStandHandler {
@@ -65,9 +67,16 @@ public class BrewingStandHandler {
         int freeSlotsInBrewer = 0;
         if (freeSlot != -1) {
             for (int i = 0; i <= 2; i++) {
-                if (!brewingStandMenu.getSlot(i).getItem().isEmpty() && isPotion(brewingStandMenu.getSlot(i).getItem(), Config.alchemyPotionEffect)){
+                if (!brewingStandMenu.getSlot(i).getItem().isEmpty()
+                        && isStrongPotion(brewingStandMenu.getSlot(i).getItem(), Config.alchemyPotionEffect)
+                        && !isStrongPotion(brewingStandMenu.getSlot(i).getItem(), "minecraft:water")
+                        && !isStrongPotion(brewingStandMenu.getSlot(i).getItem(), "minecraft:awkward")) {
                     Minecraft.getInstance().gameMode.handleInventoryMouseClick(brewingStandMenu.containerId, i, 0, ClickType.QUICK_MOVE, player);
-                    Main.LOGGER.info("Moved potion to slot {}", freeSlot);
+                    // Main.LOGGER.info("Moved potion to slot {}", freeSlot);
+                    if (i == 2) {
+                        if (Config.closeInventory)
+                            player.closeContainer();
+                    }
                     return;
                 }
                 if (brewingStandMenu.getSlot(i).getItem().isEmpty())
@@ -93,18 +102,18 @@ public class BrewingStandHandler {
             }
         }
 
-        Main.LOGGER.info("Potion type: {}", potionType);
+        // Main.LOGGER.info("Potion type: {}", potionType);
 
         for (int i = 0; i <= 2; i++) {
             if (brewingStandMenu.getSlot(i).getItem().isEmpty()) {
-                Main.LOGGER.info("Found empty slot at {}", i);
+                // Main.LOGGER.info("Found empty slot at {}", i);
                 if (potionType == 1) {
                     Minecraft.getInstance().gameMode.handleInventoryMouseClick(brewingStandMenu.containerId, waterPotionSlots.getFirst().index, 0, ClickType.QUICK_MOVE, player);
-                    Main.LOGGER.info("Moved water potion to slot {}", i);
+                    // Main.LOGGER.info("Moved water potion to slot {}", i);
                 } else if (potionType == 2) {
                     if (awkwardPotionSlots.size() >= 3 - i) {
                         Minecraft.getInstance().gameMode.handleInventoryMouseClick(brewingStandMenu.containerId, awkwardPotionSlots.getFirst().index, 0, ClickType.QUICK_MOVE, player);
-                        Main.LOGGER.info("Moved awkward potion to slot {}", i);
+                        // Main.LOGGER.info("Moved awkward potion to slot {}", i);
                     }
                 }
                 return;
@@ -112,7 +121,7 @@ public class BrewingStandHandler {
         }
 
         if (freeSlotsInBrewer != 0) {
-            Main.LOGGER.info("Free slots in brewer: {}", freeSlotsInBrewer);
+            // Main.LOGGER.info("Free slots in brewer: {}", freeSlotsInBrewer);
             return;
         }
 
@@ -123,20 +132,18 @@ public class BrewingStandHandler {
                 if (!carryingItem && prepareSlot != -1) {
                     Minecraft.getInstance().gameMode.handleInventoryMouseClick(brewingStandMenu.containerId, prepareSlot, 0, ClickType.PICKUP, player);
                     carryingItem = true;
-                    Main.LOGGER.info("Grabbed {} from the inventory", Config.alchemyPrepareItem);
-                    return;
+                    // Main.LOGGER.info("Grabbed {} from the inventory", Config.alchemyPrepareItem);
                 } else if (carryingItem) {
                     Minecraft.getInstance().gameMode.handleInventoryMouseClick(brewingStandMenu.containerId, 3, 1, ClickType.PICKUP, player);
                     carryingItem = ingredientAmount > 1;
-                    Main.LOGGER.info("Moved {} to the prepare slot", Config.alchemyPrepareItem);
-                    return;
+                    // Main.LOGGER.info("Moved {} to the prepare slot", Config.alchemyPrepareItem);
                 }
             } else if (carryingItem && ingredientAmount > 1) {
                 Minecraft.getInstance().gameMode.handleInventoryMouseClick(brewingStandMenu.containerId, prepareSlot, 0, ClickType.PICKUP, player);
                 carryingItem = false;
-                Main.LOGGER.info("Moved {} to the prepare slot", Config.alchemyPrepareItem);
-                return;
+                // Main.LOGGER.info("Moved {} to the prepare slot", Config.alchemyPrepareItem);
             }
+            return;
         }
 
         if (isPotion(potion, "minecraft:awkward")) {
@@ -146,42 +153,59 @@ public class BrewingStandHandler {
                 if (!carryingItem && ingredientSlot != -1) {
                     Minecraft.getInstance().gameMode.handleInventoryMouseClick(brewingStandMenu.containerId, ingredientSlot, 0, ClickType.PICKUP, player);
                     carryingItem = true;
-                    Main.LOGGER.info("Grabbed {} from the inventory", Config.alchemyIngredientItem);
-                    return;
+                    // Main.LOGGER.info("Grabbed {} from the inventory", Config.alchemyIngredientItem);
                 } else if (carryingItem) {
                     Minecraft.getInstance().gameMode.handleInventoryMouseClick(brewingStandMenu.containerId, 3, 1, ClickType.PICKUP, player);
                     carryingItem = ingredientAmount > 1;
-                    Main.LOGGER.info("Moved {} to the ingredient slot", Config.alchemyIngredientItem);
-                    return;
+                    // Main.LOGGER.info("Moved {} to the ingredient slot", Config.alchemyIngredientItem);
                 }
             } else if (carryingItem && ingredientAmount > 1) {
                 Minecraft.getInstance().gameMode.handleInventoryMouseClick(brewingStandMenu.containerId, ingredientSlot, 0, ClickType.PICKUP, player);
                 carryingItem = false;
-                Main.LOGGER.info("Moved {} to the ingredient slot", Config.alchemyIngredientItem);
-                return;
+                // Main.LOGGER.info("Moved {} to the ingredient slot", Config.alchemyIngredientItem);
             }
+            return;
         }
 
-        if (brewingStandMenu.getSlot(4).getItem().isEmpty()) {
-            int fuelSlot = findItemInInventory(brewingStandMenu, stringToItem(Config.alchemyFuelItem));
-            if (fuelSlot != -1) {
-                Minecraft.getInstance().gameMode.handleInventoryMouseClick(brewingStandMenu.containerId, fuelSlot, 1, ClickType.QUICK_MOVE, player);
-                Main.LOGGER.info("Moved {} to the fuel slot", Config.alchemyFuelItem);
-                return;
+        if (!isStrongPotion(potion, Config.alchemyPotionEffect)) {
+            int ingredientSlot = findItemInInventory(brewingStandMenu, stringToItem(Config.alchemyAmplifierItem));
+            ingredientAmount = ingredientSlot != -1 ? brewingStandMenu.getSlot(ingredientSlot).getItem().getCount() : 0;
+            if (brewingStandMenu.getSlot(3).getItem().isEmpty()) {
+                if (!carryingItem && ingredientSlot != -1) {
+                    Minecraft.getInstance().gameMode.handleInventoryMouseClick(brewingStandMenu.containerId, ingredientSlot, 0, ClickType.PICKUP, player);
+                    carryingItem = true;
+                    // Main.LOGGER.info("Grabbed {} from the inventory", Config.alchemyAmplifierItem);
+                } else if (carryingItem) {
+                    Minecraft.getInstance().gameMode.handleInventoryMouseClick(brewingStandMenu.containerId, 3, 1, ClickType.PICKUP, player);
+                    carryingItem = ingredientAmount > 1;
+                    // Main.LOGGER.info("Moved {} to the ingredient slot", Config.alchemyAmplifierItem);
+                }
+            } else if (carryingItem && ingredientAmount > 1) {
+                Minecraft.getInstance().gameMode.handleInventoryMouseClick(brewingStandMenu.containerId, ingredientSlot, 0, ClickType.PICKUP, player);
+                carryingItem = false;
+                // Main.LOGGER.info("Moved {} to the ingredient slot", Config.alchemyAmplifierItem);
             }
+            return;
         }
-        if (Config.closeInventory)
-            player.closeContainer();
+
+//        if (brewingStandMenu.getSlot(4).getItem().isEmpty()) {
+//            int fuelSlot = findItemInInventory(brewingStandMenu, stringToItem(Config.alchemyFuelItem));
+//            if (fuelSlot != -1) {
+//                Minecraft.getInstance().gameMode.handleInventoryMouseClick(brewingStandMenu.containerId, fuelSlot, 1, ClickType.QUICK_MOVE, player);
+//                // Main.LOGGER.info("Moved {} to the fuel slot", Config.alchemyFuelItem);
+//                return;
+//            }
+//        }
     }
 
     private int findItemInInventory(BrewingStandMenu brewingStandMenu, Item item) {
         for (int i = 5; i < 41; i++) {
             if (brewingStandMenu.getSlot(i).getItem().getItem() == item) {
-                Main.LOGGER.info("Item {} found in inventory at slot {}", item, i);
+                // Main.LOGGER.info("Item {} found in inventory at slot {}", item, i);
                 return i;
             }
         }
-        Main.LOGGER.info("Item {} not found in inventory", item);
+        // Main.LOGGER.info("Item {} not found in inventory", item);
         return -1;
     }
 
@@ -190,7 +214,7 @@ public class BrewingStandHandler {
         for (int i = 5; i < 41; i++) {
             ItemStack itemStack = brewingStandMenu.getSlot(i).getItem();
             if (isPotion(itemStack, potionId)) {
-                Main.LOGGER.info("Potion {} found in inventory at slot {}", potionId, i);
+                // Main.LOGGER.info("Potion {} found in inventory at slot {}", potionId, i);
                 potionSlots.add(brewingStandMenu.getSlot(i));
             }
         }
@@ -209,6 +233,25 @@ public class BrewingStandHandler {
         return false;
     }
 
+    private boolean isStrongPotion(ItemStack itemStack, String potionId) {
+        if (itemStack.getItem() == Items.POTION) {
+            Optional<Holder<Potion>> potionOptional = itemStack.getOrDefault(DataComponents.POTION_CONTENTS, PotionContents.EMPTY).potion();
+            if (potionOptional.isPresent()) {
+                Potion potion = potionOptional.get().value();
+                ResourceLocation potionKey = BuiltInRegistries.POTION.getKey(potion);
+                if (potionKey != null && potionKey.toString().equals(potionId)) {
+                    List<MobEffectInstance> effects = potion.getEffects();
+                    for (MobEffectInstance effect : effects) {
+                        if (effect.getAmplifier() >= 0) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
     private Item stringToItem(String itemString) {
         return ForgeRegistries.ITEMS.getValue(ResourceLocation.tryParse(itemString));
     }
@@ -216,7 +259,7 @@ public class BrewingStandHandler {
     private int getFreeSlot(BrewingStandMenu brewingStandMenu) {
         for (int i = 5; i < 41; i++) {
             if (brewingStandMenu.getSlot(i).getItem().isEmpty()) {
-                Main.LOGGER.info("Found free slot at {}", i);
+                // Main.LOGGER.info("Found free slot at {}", i);
                 return i;
             }
         }

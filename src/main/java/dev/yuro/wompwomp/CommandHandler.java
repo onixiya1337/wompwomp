@@ -37,18 +37,27 @@ public class CommandHandler {
                                 .then(Commands.literal("smeltItem")
                                         .then(Commands.argument("item", StringArgumentType.greedyString())
                                                 .executes(ctx -> setItem(ctx, "smeltItem", StringArgumentType.getString(ctx, "item")))))
-                                .then(Commands.literal("alchemyFuelItem")
-                                        .then(Commands.argument("item", StringArgumentType.greedyString())
-                                                .executes(ctx -> setItem(ctx, "alchemyFuelItem", StringArgumentType.getString(ctx, "item")))))
+//                                .then(Commands.literal("alchemyFuelItem")
+//                                        .then(Commands.argument("item", StringArgumentType.greedyString())
+//                                                .executes(ctx -> setItem(ctx, "alchemyFuelItem", StringArgumentType.getString(ctx, "item")))))
                                 .then(Commands.literal("alchemyIngredientItem")
                                         .then(Commands.argument("item", StringArgumentType.greedyString())
                                                 .executes(ctx -> setItem(ctx, "alchemyIngredientItem", StringArgumentType.getString(ctx, "item")))))
+                                .then(Commands.literal("alchemyAmplifierItem")
+                                        .then(Commands.argument("item", StringArgumentType.greedyString())
+                                                .executes(ctx -> setItem(ctx, "alchemyAmplifierItem", StringArgumentType.getString(ctx, "item")))))
                                 .then(Commands.literal("alchemyPrepareItem")
                                         .then(Commands.argument("item", StringArgumentType.greedyString())
                                                 .executes(ctx -> setItem(ctx, "alchemyPrepareItem", StringArgumentType.getString(ctx, "item")))))
                                 .then(Commands.literal("alchemyPotionEffect")
                                         .then(Commands.argument("effect", StringArgumentType.greedyString())
-                                                .executes(ctx -> setPotionEffect(ctx, StringArgumentType.getString(ctx, "effect")))))
+                                                .executes(ctx -> setPotionEffect(ctx, StringArgumentType.getString(ctx, "effect")))
+                                                .suggests((ctx, builder) -> {
+                                                    for (ResourceLocation resourceLocation : ForgeRegistries.POTIONS.getKeys()) {
+                                                        builder.suggest(resourceLocation.toString());
+                                                    }
+                                                    return builder.buildFuture();
+                                                })))
                         )
         );
     }
@@ -94,6 +103,10 @@ public class CommandHandler {
             case "alchemyIngredientItem":
                 Config.ALCHEMY_INGREDIENT_ITEM.set(itemName);
                 Config.alchemyIngredientItem = itemName;
+                break;
+            case "alchemyAmplifierItem":
+                Config.ALCHEMY_AMPLIFIER_ITEM.set(itemName);
+                Config.alchemyAmplifierItem = itemName;
                 break;
             case "alchemyPrepareItem":
                 Config.ALCHEMY_PREPARE_ITEM.set(itemName);
